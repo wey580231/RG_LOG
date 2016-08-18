@@ -1,7 +1,6 @@
 #include "logthread.h"
 
 #include <QQueue>
-#include <QDebug>
 
 #include "logging.h"
 
@@ -90,7 +89,6 @@ void LogThread::openFile()
         }
 
         QString fileName = baseFileName+"("+QString::number(fileIndex)+")"+".txt";
-        qDebug()<<fileName;
         file.setFileName(fileName);
         if(!file.open(QFile::WriteOnly|QIODevice::Text))
         {
@@ -99,9 +97,7 @@ void LogThread::openFile()
         else
         {
             stream.setDevice(&file);
-//            stream.setCodec(codec);
             fileOpen = true;
-//            LOG(Logging::NORMAL,"Start Logging!");
         }
     }
 }
@@ -110,8 +106,6 @@ void LogThread::closeFile()
 {
     if(fileOpen)
     {
-        qDebug()<<"====closeFile=====";
-//        LOG(Logging::NORMAL,"Finih!!!");
         file.close();
         fileOpen = false;
     }

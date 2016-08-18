@@ -2,7 +2,6 @@
 
 #include <QMutex>
 #include <QDateTime>
-#include <QDebug>
 #include <QTextCodec>
 #include <QQueue>
 
@@ -53,8 +52,6 @@ void Logging::log(const LogLevel level, const QString info)
     }
 
     logThread->startThread();
-
-
 }
 
 ///*****************************************************
