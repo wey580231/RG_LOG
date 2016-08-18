@@ -11,10 +11,11 @@ TEMPLATE = lib
 
 DEFINES += RG_LOG_LIBRARY
 
-SOURCES += logging.cpp
+SOURCES += logging.cpp \
+    logthread.cpp
 
 HEADERS += logging.h\
-        rg_log_global.h
+    logthread.h
 
 unix:!symbian {
     maemo5 {

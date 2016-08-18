@@ -9,7 +9,7 @@
 **
 **修改历史:
 **20160808:wey:添加记录16进制数据
-**
+**20160818:wey:添加线程记录数据
 *************************************************/
 #ifndef LOGGING_H
 #define LOGGING_H
@@ -20,11 +20,9 @@
 
 class QTextCodec;
 
-#include "rg_log_global.h"
-
 #define LOG (Logging::instance()->log)
 
-class RG_LOGSHARED_EXPORT Logging
+class Q_DECL_EXPORT Logging
 {
 public:
     enum LogLevel
