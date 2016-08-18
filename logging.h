@@ -15,10 +15,8 @@
 #define LOGGING_H
 
 #include <QString>
-#include <QTextStream>
-#include <QFile>
 
-class QTextCodec;
+class LogThread;
 
 #define LOG (Logging::instance()->log)
 
@@ -32,32 +30,31 @@ public:
         ERROR
     };
 
+    //一条日志记录
+    struct LogRecord
+    {
+        QString timeStamp;          //时间戳
+        LogLevel level;             //日志等级
+        QString content;            //日志内容
+    };
+
     Logging();
     ~Logging();
 
     static Logging * instance();
+    static QString getTimeStamp(bool isNeedDesc = false);
     void setCodec(QTextCodec * codec);
 
     void log(const LogLevel level,const QString info);
     void log(const LogLevel level,const char * data,int dataLength);
 
 private:
-    void openFile();
-    void closeFile();
-    QString getTimeStamp(bool isNeedDesc = false);
-    QString getWrappedText(QString text);
-
     char valueToHex(int value);
     void strToHex(const char * source, int sourceLen, char * dest);
 
     static Logging * logging;
 
-    bool fileOpen;
-
-    QFile file;
-    QTextStream stream;
-
-    QTextCodec * codec;
+    LogThread * logThread;
 
 };
 

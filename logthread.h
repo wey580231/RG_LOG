@@ -11,10 +11,44 @@
 #ifndef LOGTHREAD_H
 #define LOGTHREAD_H
 
-class LogThread
+#include <QThread>
+#include <QWaitCondition>
+#include <QMutex>
+
+#include <QTextStream>
+#include <QFile>
+
+class QTextCodec;
+
+class LogThread : public QThread
 {
+    Q_OBJECT
+
 public:
-    LogThread();
+    LogThread( QObject * parent = 0);
+    void startThread();
+    bool isProcess(){return this->isRun;}
+    ~LogThread();
+
+protected:
+    void run();
+
+private:
+    void openFile();
+    void closeFile();
+    QString getWrappedText(QString text);
+
+    bool fileOpen;                      //文件是否打开
+    bool isRun;                         //线程是否在运行
+
+    QFile file;
+    QTextStream stream;
+
+    QTextCodec * codec;
+
+    QWaitCondition condition;
+    QMutex mutex;
+
 };
 
 #endif // LOGTHREAD_H

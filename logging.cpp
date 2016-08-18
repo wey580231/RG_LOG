@@ -4,17 +4,18 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QTextCodec>
+#include <QQueue>
 
-QMutex mutex;
+#include "logthread.h"
 
-Logging::Logging():
-    codec(NULL)
+QMutex ququeMutex;
+QQueue<Logging::LogRecord> logQueue;     //日志集合
+
+Logging::Logging()
 {
     logging = this;
 
-    fileOpen = false;
-
-    openFile();
+    logThread = NULL;
 }
 
 Logging * Logging::logging = NULL;
@@ -35,36 +36,25 @@ Logging * Logging::instance()
 ///****************************************************/
 void Logging::log(const LogLevel level, const QString info)
 {
-    mutex.lock();
-    if(!fileOpen)
+    ququeMutex.lock();
+
+    LogRecord record;
+    record.timeStamp = getTimeStamp(true);
+    record.level = level;
+    record.content = info;
+
+    logQueue.enqueue(record);
+
+    ququeMutex.unlock();
+
+    if(!logThread)
     {
-        mutex.unlock();
-        return;
+        logThread = new LogThread;
     }
 
-    QString logLevel;
-    switch(level)
-    {
-        case Logging::NORMAL:
-                             logLevel = getWrappedText("Info");
-                             break;
-        case Logging::WARN:
-                             logLevel = getWrappedText("Warn");
-                             break;
-        case Logging::ERROR:
-                             logLevel = getWrappedText("Error");
-                             break;
-    }
+    logThread->startThread();
 
-    stream<<getWrappedText(getTimeStamp(true))
-            <<logLevel
-             <<":"
-              <<info
-               <<"\n";
 
-    stream.flush();
-
-    mutex.unlock();
 }
 
 ///*****************************************************
@@ -133,39 +123,9 @@ void Logging::strToHex(const char * source,int sourceLen,char * dest)
     }
 }
 
-void Logging::openFile()
-{
-    if(!fileOpen)
-    {
-        QString fileName = getTimeStamp()+".txt";
-        file.setFileName(fileName);
-        if(!file.open(QFile::WriteOnly|QIODevice::Text))
-        {
-            fileOpen = false;
-        }
-        else
-        {
-            stream.setDevice(&file);
-            stream.setCodec(codec);
-            fileOpen = true;
-            LOG(Logging::NORMAL,"Start Logging!");
-        }
-    }
-}
-
-void Logging::closeFile()
-{
-    if(fileOpen)
-    {
-        file.close();
-
-        LOG(Logging::NORMAL,"Finih!!!");
-    }
-}
-
 void Logging::setCodec(QTextCodec *codec)
 {
-    this->codec = codec;
+//    this->codec = codec;
 }
 
 ///*****************************************************
@@ -190,16 +150,13 @@ QString Logging::getTimeStamp(bool isNeedDesc)
     return QDateTime::currentDateTime().toString(format);
 }
 
-//将普通字符串利用中括号包裹
-QString Logging::getWrappedText(QString text)
-{
-    return QString("["+text+"]");
-}
-
 Logging::~Logging()
 {
-    closeFile();
-
+    if(logThread)
+    {
+        delete logThread;
+        logThread = NULL;
+    }
     if(logging ==  this)
     {
         logging = NULL;
