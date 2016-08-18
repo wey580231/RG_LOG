@@ -8,7 +8,7 @@
 
 #include "logthread.h"
 
-QMutex ququeMutex;
+QMutex QuqueMutex;
 QQueue<Logging::LogRecord> logQueue;     //日志集合
 
 Logging::Logging()
@@ -36,7 +36,7 @@ Logging * Logging::instance()
 ///****************************************************/
 void Logging::log(const LogLevel level, const QString info)
 {
-    ququeMutex.lock();
+    QuqueMutex.lock();
 
     LogRecord record;
     record.timeStamp = getTimeStamp(true);
@@ -45,7 +45,7 @@ void Logging::log(const LogLevel level, const QString info)
 
     logQueue.enqueue(record);
 
-    ququeMutex.unlock();
+    QuqueMutex.unlock();
 
     if(!logThread)
     {

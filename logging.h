@@ -19,6 +19,7 @@
 class LogThread;
 
 #define LOG (Logging::instance()->log)
+#define MAX_SIZE_PER_TEXT     10*1000*1000    //10ув
 
 class Q_DECL_EXPORT Logging
 {

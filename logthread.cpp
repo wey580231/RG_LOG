@@ -5,7 +5,7 @@
 
 #include "logging.h"
 
-extern QMutex ququeMutex;
+extern QMutex QuqueMutex;
 extern QQueue<Logging::LogRecord> logQueue;     //日志集合
 
 LogThread::LogThread(QObject *parent):
@@ -13,6 +13,7 @@ LogThread::LogThread(QObject *parent):
 {
     fileOpen = false;
     isRun = false;
+    fileIndex = 1;
 
     openFile();
 }
@@ -33,9 +34,16 @@ void LogThread::run()
 {
     while(true)
     {
-        ququeMutex.lock();
+        QuqueMutex.lock();
         while(logQueue.size() > 0)
         {
+            if(file.size() >= MAX_SIZE_PER_TEXT)
+            {
+                closeFile();
+                fileIndex++;
+                openFile();
+            }
+
             isRun = true;
             Logging::LogRecord  log = logQueue.dequeue();
 
@@ -61,7 +69,7 @@ void LogThread::run()
 
             stream.flush();
         }
-        ququeMutex.unlock();
+        QuqueMutex.unlock();
 
         isRun = false;
 
@@ -75,7 +83,14 @@ void LogThread::openFile()
 {
     if(!fileOpen)
     {
-        QString fileName = Logging::getTimeStamp()+".txt";
+        //确保文件名只创建一次
+        if(fileIndex == 1)
+        {
+            baseFileName = Logging::getTimeStamp();
+        }
+
+        QString fileName = baseFileName+"("+QString::number(fileIndex)+")"+".txt";
+        qDebug()<<fileName;
         file.setFileName(fileName);
         if(!file.open(QFile::WriteOnly|QIODevice::Text))
         {
@@ -95,9 +110,10 @@ void LogThread::closeFile()
 {
     if(fileOpen)
     {
+        qDebug()<<"====closeFile=====";
+//        LOG(Logging::NORMAL,"Finih!!!");
         file.close();
-
-        LOG(Logging::NORMAL,"Finih!!!");
+        fileOpen = false;
     }
 }
 

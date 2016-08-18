@@ -7,6 +7,7 @@
 **
 **修改历史:
 **20160818:wey:添加日志记录功能
+**20160818:wey:添加当日志记录文件大于MAX_SIZE后，自动分文件记录
 *************************************************/
 #ifndef LOGTHREAD_H
 #define LOGTHREAD_H
@@ -45,6 +46,9 @@ private:
     QTextStream stream;
 
     QTextCodec * codec;
+
+    QString baseFileName;               //第一次记录文件的名称
+    int fileIndex;                      //相同文件索引
 
     QWaitCondition condition;
     QMutex mutex;
