@@ -10,6 +10,8 @@
 QMutex QuqueMutex;
 QQueue<Logging::LogRecord> logQueue;     //日志集合
 
+
+
 Logging::Logging()
 {
     logging = this;
@@ -83,6 +85,13 @@ void Logging::log(const LogLevel level, const char *data, int dataLength)
 
     delete [] dest;
 }
+
+//对QStringList记录
+void Logging::log(const LogLevel level, const QStringList listInfo, QString splitFlag)
+{
+    log(level,listInfo.join(splitFlag));
+}
+
 
 //将数字转换成16进制表示
 char Logging::valueToHex(int value)
