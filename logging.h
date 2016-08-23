@@ -162,42 +162,36 @@ void Logging::log(const LogLevel level,const QMap<T,V> mapInfo, QString splitFla
 
     QString info;
 
-    QMapIterator<T, V> iter(mapInfo);
-    int count = 0;
-    while(iter.hasNext())
+    QList<T> keys = mapInfo.keys();
+
+    for(int i = 0; i<keys.size(); i++)
     {
-        iter.next();
-
-        info += "[";
-
         if(isKeyStringType)
         {
-            info += iter.key();
+            info += keys.at(i);
         }
         else
         {
-//            info += QString::number(iter.key());
+            info += QString(ToString(keys.at(i)));
         }
 
         info += ":";
 
         if(isValStringType)
         {
-            info += iter.value();
+            info += mapInfo.value(keys.at(i));
         }
         else
         {
-            info += QString::number(iter.value());
+            info += QString::number(mapInfo.value(keys.at(i)));
         }
 
         info += "]";
 
-        if(count != mapInfo.size()-1 )
+        if(i != keys.size()-1 )
         {
             info += splitFlag;
         }
-
-        count++;
     }
 
     log(level,info);
