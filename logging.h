@@ -11,6 +11,7 @@
 **20160808:wey:添加记录16进制数据
 **20160818:wey:添加线程记录数据
 **20160822:wey:添加对集合、链表等记录
+**20160823:wey:添加对栈、队列、容器的记录
 *************************************************/
 #ifndef LOGGING_H
 #define LOGGING_H
@@ -18,6 +19,7 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QVector>
 #include <QMap>
 
 #include "typeinfo.h"
@@ -60,6 +62,9 @@ public:
 
     template<typename T,typename V>
     void log(const LogLevel level,const QMap<T,V> mapInfo, QString splitFlag = ",");
+
+    template<typename T>
+    void log(const LogLevel level,const QVector<T> vectorInfo,QString splitFlag = ",");
 
     void log(const LogLevel level,const char * data,int dataLength);
 
@@ -197,5 +202,41 @@ void Logging::log(const LogLevel level,const QMap<T,V> mapInfo, QString splitFla
     log(level,info);
 }
 
+//记录QMap，对非QString类型的类要屏蔽
+template <typename T>
+void Logging::log(const LogLevel level,const QVector<T> vectorInfo,QString splitFlag)
+{
+    T t;
+    CHECK_LEGAL_TYPE(t)
+
+    bool isStringType = false;
+
+    if(CheckStringType(t))
+    {
+        isStringType = true;
+    }
+
+    QString info;
+
+    for(int i = 0; i < vectorInfo.size(); i++)
+    {
+
+        if(isStringType)
+        {
+           info += vectorInfo.at(i);
+        }
+        else
+        {
+            info += QString::number(vectorInfo.at(i));
+        }
+
+        if(i != vectorInfo.size()-1)
+        {
+            info += splitFlag;
+        }
+    }
+
+    log(level,info);
+}
 
 #endif // LOGGING_H
